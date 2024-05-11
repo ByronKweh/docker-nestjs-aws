@@ -30,11 +30,11 @@ jobs:
 
       - name: Pull from github
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ec2-user/docker-nestjs-aws && sudo git pull'
+          ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ec2-user/docker-nestjs-aws && sudo git pull && sudo yarn'
 
       - name: Run migrations, build, and stop pm2 instances
         run: |
-          ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ec2-user/docker-nestjs-aws && sudo npx prisma migrate deploy && sudo yarn build && sudo npx pm2 del all && sudo yarn deploy'
+          ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ec2-user/docker-nestjs-aws && sudo npx prisma migrate deploy && sudo yarn build && sudo npx pm2 kill'
 
       - name: Run migrations, build, and stop pm2 instances
         run: |
