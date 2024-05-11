@@ -97,7 +97,7 @@ export class RecruiterController {
     );
   }
 
-  @Delete('/job-listings/publish/:job_listing_id')
+  @Post('/job-listings/publish/:job_listing_id')
   @ApiBearerAuth()
   @UseGuards(RecruiterAuthGuard)
   @ApiResponse({

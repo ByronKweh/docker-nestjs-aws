@@ -158,6 +158,15 @@ export class RecruiterService {
       throw new UnauthorizedException();
     }
 
+    const listing = await this.prisma.job_listing.findFirst({
+      where: {
+        id: job_listing_id,
+      },
+    });
+
+    if (listing.date_posted)
+      throw new BadRequestException('Job already published');
+
     return await this.prisma.job_listing.update({
       where: {
         id: job_listing_id,
