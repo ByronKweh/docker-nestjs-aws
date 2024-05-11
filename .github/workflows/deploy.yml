@@ -26,10 +26,11 @@ jobs:
       - name: Run tests
         run: yarn test
 
-      - name: Decode PEM key
+      - name: Decode and setup SSH key
         env:
           SSH_PRIVATE_KEY_BASE64: ${{ secrets.SSH_PRIVATE_KEY_BASE64 }}
         run: |
+          mkdir -p $HOME/.ssh
           echo "$SSH_PRIVATE_KEY_BASE64" | base64 --decode > $HOME/.ssh/id_rsa
           chmod 600 $HOME/.ssh/id_rsa
 
