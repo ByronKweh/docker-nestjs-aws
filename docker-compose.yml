@@ -1,21 +1,6 @@
 version: '3.8'
 
 services:
-  app:
-    container_name: nestjs_app
-    build:
-      context: .
-    ports:
-      - "3000:3000"
-    depends_on:
-      - db
-    volumes:
-      - .:/usr/src/app # Mount the project directory
-      - /usr/src/app/node_modules # Use node_modules from the container
-    environment:
-      - DATABASE_URL=postgres://user:password@db:5432/dbname
-    command: yarn start:dev # Start command with hot reload enabled
-
   db:
     container_name: postgres_db
     image: postgres:14
@@ -27,6 +12,8 @@ services:
       - POSTGRES_DB=dbname
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+
 
 volumes:
   pgdata:

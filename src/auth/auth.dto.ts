@@ -5,12 +5,12 @@ export class LoginRequest {
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  @ApiProperty({ description: 'User email', example: 'test@email.com' })
+  @ApiProperty({ description: 'User email', example: 'recruiter@pulsifi.com' })
   email: string;
 
   @IsString()
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ description: 'User password', example: 'password' })
   password: string;
 }
 
