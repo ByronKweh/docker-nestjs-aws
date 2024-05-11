@@ -14,17 +14,31 @@ datasource db {
 }
 
 model user {
-  id         Int        @id @default(autoincrement())
-  created_at DateTime   @default(now())
-  updated_at DateTime   @default(now()) @updatedAt
-  deleted_at DateTime?
-  username   String     @unique
-  password   String
-  recruiter  recruiter?
+  id          Int           @id @default(autoincrement())
+  created_at  DateTime      @default(now())
+  updated_at  DateTime      @default(now()) @updatedAt
+  deleted_at  DateTime?
+  username    String        @unique
+  password    String
+  recruiter   recruiter?
+  job_listing job_listing[]
 }
 
 model recruiter {
   id      Int  @id @default(autoincrement())
   user_id Int  @unique
-  user    user @relation(fields: [user_id], references: [id])
+  user    user @relation(fields: [user_id], references: [id], onDelete: Cascade)
+}
+
+model job_listing {
+  id            Int       @id @default(autoincrement())
+  title         String
+  location      String
+  description   String
+  date_posted   DateTime?
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @default(now()) @updatedAt
+  deleted_at    DateTime?
+  created_by_id Int
+  created_by    user      @relation(fields: [created_by_id], references: [id], onDelete: Cascade)
 }

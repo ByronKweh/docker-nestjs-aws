@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthController } from './auth/auth.controller';
-import { AuthService } from './auth/auth.service';
 import { PrismaService } from './prisma.service';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { RecruiterModule } from './recruiter/recruiter.module';
 import configuration from './config/config';
 
 @Module({
@@ -18,8 +18,10 @@ import configuration from './config/config';
       global: true,
       secret: configuration().JWT_SECRET,
     }),
+    AuthModule,
+    RecruiterModule,
   ],
-  controllers: [AppController, AuthController],
-  providers: [AppService, AuthService, PrismaService],
+  controllers: [AppController],
+  providers: [AppService, PrismaService],
 })
 export class AppModule {}
