@@ -68,3 +68,5 @@ You can play with the APIs via our Swagger [here](http://ec2-3-0-29-165.ap-south
   - Prisma and jest issues such as jest not detecting the extension of interfaces when the `includes` keyword is used
   - The `moment-timezone` library has not been spied and mocked properly
 - Proper deployments should be blue/green with 0 downtime, and preferrably would use something along the lines of CodePipeline with CodeDeploy instead. 
+- Custom exceptions - Currently there's just BadRequestExceptions and NotFoundExceptions, would be best to extend the exiting exceptions and create more explicit exceptions to make it easier to differentiate (e.g. JobAlreadyPublishedException)
+- *Possible Improvement* - Change to role based guards instead of standard guards
