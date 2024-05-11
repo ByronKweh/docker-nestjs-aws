@@ -96,4 +96,36 @@ export class RecruiterController {
       job_listing_id,
     );
   }
+
+  @Delete('/job-listings/publish/:job_listing_id')
+  @ApiBearerAuth()
+  @UseGuards(RecruiterAuthGuard)
+  @ApiResponse({
+    status: 201,
+  })
+  async publishJobListing(
+    @Param('job_listing_id') job_listing_id: number,
+    @User() user: RequestUserEntity,
+  ) {
+    return await this.recruiterService.publishJobListing(
+      user.id,
+      job_listing_id,
+    );
+  }
+
+  @Get('/job-listings/:job_listing_id')
+  @ApiBearerAuth()
+  @UseGuards(RecruiterAuthGuard)
+  @ApiResponse({
+    status: 200,
+  })
+  async getJobListingDetails(
+    @Param('job_listing_id') job_listing_id: number,
+    @User() user: RequestUserEntity,
+  ) {
+    return await this.recruiterService.publishJobListing(
+      user.id,
+      job_listing_id,
+    );
+  }
 }

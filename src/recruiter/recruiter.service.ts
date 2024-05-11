@@ -152,4 +152,31 @@ export class RecruiterService {
       },
     });
   }
+
+  async publishJobListing(user_id: number, job_listing_id: number) {
+    if (!(await this.isValidJobListingAndUserId(user_id, job_listing_id))) {
+      throw new UnauthorizedException();
+    }
+
+    return await this.prisma.job_listing.update({
+      where: {
+        id: job_listing_id,
+      },
+      data: {
+        date_posted: moment().toISOString(),
+      },
+    });
+  }
+
+  async getJobListingDetails(user_id: number, job_listing_id: number) {
+    if (!(await this.isValidJobListingAndUserId(user_id, job_listing_id))) {
+      throw new UnauthorizedException();
+    }
+
+    return await this.prisma.job_listing.findFirst({
+      where: {
+        id: job_listing_id,
+      },
+    });
+  }
 }
