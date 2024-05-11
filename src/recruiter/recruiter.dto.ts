@@ -106,3 +106,5 @@ export class CreateJobListingDTO {
   @IsBoolean()
   should_publish: boolean;
 }
+
+export class EditJobListingDTO extends CreateJobListingDTO {}

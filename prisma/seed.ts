@@ -4,7 +4,7 @@ import * as moment from 'moment-timezone';
 
 const prisma = new PrismaClient();
 async function main() {
-  const alice = await prisma.user.upsert({
+  const recruiter1 = await prisma.user.upsert({
     where: { username: 'recruiter@pulsifi.com' },
     update: {},
     create: {
@@ -33,7 +33,36 @@ async function main() {
       },
     },
   });
-  const bob = await prisma.user.upsert({
+  const recruiter2 = await prisma.user.upsert({
+    where: { username: 'recruiter2@pulsifi.com' },
+    update: {},
+    create: {
+      username: 'recruiter2@pulsifi.com',
+      password: await bcrypt.hash('password', 10),
+      recruiter: {
+        create: {
+          job_listing: {
+            createMany: {
+              data: [
+                {
+                  title: 'Test Job X',
+                  description: 'Come get a better X',
+                  date_posted: moment().toISOString(),
+                  location: 'Remote',
+                },
+                {
+                  title: 'Test Job Y',
+                  description: ' Come get the best Y',
+                  location: 'USA',
+                },
+              ],
+            },
+          },
+        },
+      },
+    },
+  });
+  const candidate1 = await prisma.user.upsert({
     where: { username: 'user@pulsifi.com' },
     update: {},
     create: {
@@ -41,7 +70,7 @@ async function main() {
       password: await bcrypt.hash('password', 10),
     },
   });
-  console.log({ alice, bob });
+  console.log({ recruiter1, candidate1, recruiter2 });
 }
 main()
   .then(async () => {

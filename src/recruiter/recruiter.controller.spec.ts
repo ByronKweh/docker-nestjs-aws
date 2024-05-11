@@ -87,4 +87,35 @@ describe('RecruiterController', () => {
     //TODO Fix this
     expect(receruiterServiceMock).toHaveBeenCalledWith(user.id, payload);
   });
+
+  it('should call the service create function with the payload provided', async () => {
+    const job_listing_id = 1;
+
+    const user = {
+      id: 123,
+      username: '123',
+    } as RequestUserEntity;
+
+    const expectedResult = {
+      id: 2,
+      title: 'Test Job 2',
+      location: 'Worldwide',
+      description: ' Come get the best job',
+      date_posted: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+      deleted_at: null,
+      created_by_id: 1,
+    };
+
+    const receruiterServiceMock = jest
+      .spyOn(recruiterService, 'deleteJobListing')
+      .mockResolvedValue(expectedResult);
+
+    const result = await controller.deleteJobListing(job_listing_id, user);
+
+    expect(result).toEqual(expectedResult);
+    //TODO Fix this
+    expect(receruiterServiceMock).toHaveBeenCalledWith(user.id, job_listing_id);
+  });
 });

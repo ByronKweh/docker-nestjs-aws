@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import {
   CreateJobListingDTO,
@@ -76,6 +76,39 @@ export class RecruiterService {
           },
         },
         date_posted: data.should_publish ? moment().toISOString() : undefined,
+      },
+    });
+  }
+
+  async isValidJobListingAndUserId(user_id: number, job_listing_id: number) {
+    const listing = await this.prisma.job_listing.findFirst({
+      where: {
+        id: job_listing_id,
+      },
+      include: {
+        created_by: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (listing.created_by.user_id !== user_id) {
+      return false;
+    }
+
+    return true;
+  }
+
+  async deleteJobListing(user_id: number, job_listing_id: number) {
+    if (!(await this.isValidJobListingAndUserId(user_id, job_listing_id))) {
+      throw new UnauthorizedException();
+    }
+
+    return await this.prisma.job_listing.delete({
+      where: {
+        id: job_listing_id,
       },
     });
   }

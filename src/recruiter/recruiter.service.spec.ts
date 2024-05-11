@@ -3,10 +3,12 @@ import { RecruiterService } from './recruiter.service';
 import { PrismaService } from 'src/prisma.service';
 import { JobListingStatus } from './recruiter.dto';
 import * as moment from 'moment-timezone';
+import { UnauthorizedException } from '@nestjs/common';
 
 describe('RecruiterService', () => {
   let service: RecruiterService;
   let prismaMock: jest.Mocked<PrismaService>;
+  let prisma: PrismaService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -20,6 +22,8 @@ describe('RecruiterService', () => {
               findMany: jest.fn(),
               count: jest.fn(),
               create: jest.fn(),
+              findFirst: jest.fn(),
+              delete: jest.fn(),
             },
           },
         },
@@ -29,6 +33,7 @@ describe('RecruiterService', () => {
     service = module.get<RecruiterService>(RecruiterService);
     //@ts-expect-error Jest mock
     prismaMock = module.get<PrismaService>(PrismaService);
+    prisma = module.get<PrismaService>(PrismaService);
   });
 
   afterEach(() => {
@@ -39,7 +44,7 @@ describe('RecruiterService', () => {
     expect(service).toBeDefined();
   });
 
-  it('List job listings for recruiter - should handle default parameters when none are provided', async () => {
+  it('getJobListingByRecruiter() - should handle default parameters when none are provided', async () => {
     prismaMock.$transaction.mockImplementation(async (callback) => {
       return callback(prismaMock);
     });
@@ -69,7 +74,7 @@ describe('RecruiterService', () => {
     });
   });
 
-  it('List job listings for recruiter - should correctly paginate the results', async () => {
+  it('getJobListingByRecruiter() - should correctly paginate the results', async () => {
     prismaMock.$transaction.mockImplementation(async (callback) => {
       return callback(prismaMock);
     });
@@ -100,7 +105,7 @@ describe('RecruiterService', () => {
     });
   });
 
-  it('List job listings for recruiter - should handle no job listings available', async () => {
+  it('getJobListingByRecruiter() - should handle no job listings available', async () => {
     prismaMock.$transaction.mockImplementation(async (callback) => {
       return callback(prismaMock);
     });
@@ -123,7 +128,7 @@ describe('RecruiterService', () => {
     });
   });
 
-  it('List job listings for recruiter - should handle errors gracefully', async () => {
+  it('getJobListingByRecruiter() - should handle errors gracefully', async () => {
     prismaMock.$transaction.mockImplementation(() => {
       throw new Error('Database error');
     });
@@ -133,7 +138,7 @@ describe('RecruiterService', () => {
     ).rejects.toThrow('Database error');
   });
 
-  it('List job listings for recruiter - should correctly parse job listings', async () => {
+  it('getJobListingByRecruiter() - should correctly parse job listings', async () => {
     const mockData = [
       {
         id: 1,
@@ -187,7 +192,7 @@ describe('RecruiterService', () => {
     ]);
   });
 
-  it('should create a job listing with date posted', async () => {
+  it('createJobListing() - should create a job listing with date posted', async () => {
     const dto = {
       title: 'Software Engineer',
       description: 'Develop full-stack applications',
@@ -225,7 +230,7 @@ describe('RecruiterService', () => {
     });
   });
 
-  it('should create a job listing without date posted', async () => {
+  it('createJobListing() - should create a job listing without date posted', async () => {
     const dto = {
       title: 'Software Engineer',
       description: 'Develop full-stack applications',
@@ -261,9 +266,51 @@ describe('RecruiterService', () => {
     });
   });
 
-  // it('Create job listing - should create published job listing', async () => {
-  //   const prisma_spy = jest.spyOn(prisma.job_listing, 'create');
-  // });
+  it('isValidJobListingAndUserId() - should return true if user_id matches the job listing creator', async () => {
+    const mockedData = {
+      created_by: {
+        user_id: 1,
+      },
+    };
 
-  // it('Create job listing - should create draft job listing', async () => {});
+    //@ts-expect-error prisma extended entities don't work well with jest
+    jest.spyOn(prisma.job_listing, 'findFirst').mockResolvedValue(mockedData);
+
+    const result = await service.isValidJobListingAndUserId(1, 100);
+    expect(result).toBe(true);
+  });
+
+  it('isValidJobListingAndUserId() - should return false if user_id does not match the job listing creator', async () => {
+    //@ts-expect-error prisma extended entities don't work well with jest
+    prismaMock.job_listing.findFirst.mockResolvedValue({
+      created_by: {
+        user_id: 2,
+      },
+    });
+
+    const result = await service.isValidJobListingAndUserId(1, 100);
+    expect(result).toBe(false);
+  });
+
+  it('deleteJobListing() - should delete the job listing if user is authorized', async () => {
+    jest.spyOn(service, 'isValidJobListingAndUserId').mockResolvedValue(true);
+    //@ts-expect-error delete mocking in prisma
+    prismaMock.job_listing.delete.mockResolvedValue({ id: 100 });
+
+    const result = await service.deleteJobListing(1, 100);
+    expect(result).toEqual({ id: 100 });
+    expect(prismaMock.job_listing.delete).toHaveBeenCalledWith({
+      where: {
+        id: 100,
+      },
+    });
+  });
+
+  it('deleteJobListing() - should throw an UnauthorizedException if user is not authorized', async () => {
+    jest.spyOn(service, 'isValidJobListingAndUserId').mockResolvedValue(false);
+
+    await expect(service.deleteJobListing(1, 100)).rejects.toThrow(
+      UnauthorizedException,
+    );
+  });
 });

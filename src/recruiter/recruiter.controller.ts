@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Param,
   Post,
   Put,
   Query,
@@ -55,9 +56,31 @@ export class RecruiterController {
     return await this.recruiterService.createJobListing(user.id, body);
   }
 
-  @Put('/jobs/:job_id')
-  updateJobListing() {}
+  @Put('/jobs/:job_listing_id')
+  @ApiBearerAuth()
+  @UseGuards(RecruiterAuthGuard)
+  @ApiResponse({
+    status: 201,
+  })
+  async updateJobListing(
+    @Param('job_listing_id') job_listing_id: number,
+    @User() user: RequestUserEntity,
+    @Body() body: CreateJobListingDTO,
+  ) {}
 
-  @Delete('/jobs/:job_id')
-  deleteJobListing() {}
+  @Delete('/jobs/:job_listing_id')
+  @ApiBearerAuth()
+  @UseGuards(RecruiterAuthGuard)
+  @ApiResponse({
+    status: 204,
+  })
+  async deleteJobListing(
+    @Param('job_listing_id') job_listing_id: number,
+    @User() user: RequestUserEntity,
+  ) {
+    return await this.recruiterService.deleteJobListing(
+      user.id,
+      job_listing_id,
+    );
+  }
 }
