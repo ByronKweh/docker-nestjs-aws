@@ -31,6 +31,14 @@ You can play with the APIs via our Swagger [here](http://ec2-3-0-29-165.ap-south
 
 ## Development Guide
 
+### Standards 
+- Please put all interfaces and classes into the `.dto.ts` files
+- Shared interfaces and classes can be put into the `shared` folder
+- Update the `config.ts` file for env changes to ensure run-time checks for the env works
+- Controllers - Handle the high level things like swagger documentation decorators, class validators (to validate all inputs to the API, so we don't have to care if the client gives us something we don't expect)
+- Services - Handles the business logic with a given set of *perfect* data from the controller
+- Modules - Bundles a bunch of controllers and services so its easy to seperate domains
+
 ### Making database changes 
 
 - Update the `schema.prisma` file
@@ -59,3 +67,4 @@ You can play with the APIs via our Swagger [here](http://ec2-3-0-29-165.ap-south
 - There are quite a few `//@ts-expect-errors` in the code base due to either:
   - Prisma and jest issues such as jest not detecting the extension of interfaces when the `includes` keyword is used
   - The `moment-timezone` library has not been spied and mocked properly
+- Proper deployments should be blue/green with 0 downtime, and preferrably would use something along the lines of CodePipeline with CodeDeploy instead. 
