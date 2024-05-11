@@ -8,7 +8,7 @@
   "scripts": {
     "docker": "concurrently \"docker compose up\" \"yarn start:dev\"",
     "migrate": "npx prisma migrate dev",
-    "deploy":"npx pm2 start dist/src/main",
+    "deploy":"npx pm2 start dist/src/main.js",
     "seed": "npx prisma db seed",
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
