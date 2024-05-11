@@ -18,3 +18,8 @@ export class LoginResponse {
   @ApiProperty({ description: 'Returns a JWT as the session token.' })
   access_token: string;
 }
+
+export class RequestUserEntity {
+  id: number;
+  username: string;
+}

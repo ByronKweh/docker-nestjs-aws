@@ -3,6 +3,7 @@ import { RecruiterController } from './recruiter.controller';
 import { JwtService } from '@nestjs/jwt';
 import { RecruiterService } from './recruiter.service';
 import { PrismaService } from 'src/prisma.service';
+import { RequestUserEntity } from 'src/auth/auth.dto';
 
 describe('RecruiterController', () => {
   let controller: RecruiterController;
@@ -23,12 +24,10 @@ describe('RecruiterController', () => {
   });
 
   it('should return job listings for the logged-in recruiter', async () => {
-    //@ts-expect-error they don't expect our auth guard to add a user into the request
-    const req = {
-      user: {
-        id: 'recruiter123',
-      },
-    } as Request;
+    const user = {
+      id: 123,
+      username: '123',
+    } as RequestUserEntity;
 
     const params = {
       searchTerm: 'developer',
@@ -46,11 +45,46 @@ describe('RecruiterController', () => {
       .spyOn(recruiterService, 'getJobListingByRecruiter')
       .mockResolvedValue(expectedResult);
 
-    const result = await controller.getJobListingsByRecruiter(req, params);
+    const result = await controller.getJobListingsByRecruiter(user, params);
 
     expect(result).toEqual(expectedResult);
     //TODO Fix this
-    //@ts-expect-error jest doesnt' expect our auth guard to add a user into the request
-    expect(receruiterServiceMock).toHaveBeenCalledWith(req.user.id, params);
+    expect(receruiterServiceMock).toHaveBeenCalledWith(user.id, params);
+  });
+
+  it('should call the service create function with the payload provided', async () => {
+    const user = {
+      id: 123,
+      username: '123',
+    } as RequestUserEntity;
+
+    const payload = {
+      title: 'Sample 2 Title',
+      description: 'Sample 2 description',
+      location: 'Sample 2 location',
+      should_publish: false,
+    };
+
+    const expectedResult = {
+      id: 4,
+      title: 'Sample 2 Title',
+      location: 'Sample 2 location',
+      description: 'Sample 2 description',
+      date_posted: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+      deleted_at: null,
+      created_by_id: 1,
+    };
+
+    const receruiterServiceMock = jest
+      .spyOn(recruiterService, 'createJobListing')
+      .mockResolvedValue(expectedResult);
+
+    const result = await controller.createJobListing(user, payload);
+
+    expect(result).toEqual(expectedResult);
+    //TODO Fix this
+    expect(receruiterServiceMock).toHaveBeenCalledWith(user.id, payload);
   });
 });

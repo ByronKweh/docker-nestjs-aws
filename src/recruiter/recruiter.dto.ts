@@ -2,7 +2,14 @@ import {
   ApiProperty,
   ApiPropertyOptional,
 } from '@nestjs/swagger/dist/decorators/api-property.decorator';
-import { IsOptional, IsInt, Min } from 'class-validator';
+import {
+  IsOptional,
+  IsInt,
+  Min,
+  IsString,
+  IsNotEmpty,
+  IsBoolean,
+} from 'class-validator';
 
 export class SearchParamsDto {
   @IsOptional()
@@ -69,4 +76,33 @@ export class JobListResponseDTO {
     example: 100,
   })
   page_count: number;
+}
+
+export class CreateJobListingDTO {
+  @ApiProperty({
+    example: 'Sample Title',
+  })
+  @IsString()
+  @IsNotEmpty()
+  title: string;
+
+  @ApiProperty({
+    example: 'Sample description',
+  })
+  @IsString()
+  @IsNotEmpty()
+  description: string;
+
+  @ApiProperty({
+    example: 'Sample location',
+  })
+  @IsString()
+  @IsNotEmpty()
+  location: string;
+
+  @ApiProperty({
+    example: true,
+  })
+  @IsBoolean()
+  should_publish: boolean;
 }

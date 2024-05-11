@@ -1,11 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import {
+  CreateJobListingDTO,
   JobListResponseDTO,
   JobListingStatus,
   RecruiterJobListItemDTO,
   SearchParamsDto,
 } from './recruiter.dto';
+import * as moment from 'moment-timezone';
 
 @Injectable()
 export class RecruiterService {
@@ -59,6 +61,22 @@ export class RecruiterService {
         page_size: page_size,
         page_count: Math.ceil(count / page_size),
       };
+    });
+  }
+
+  async createJobListing(user_id: number, data: CreateJobListingDTO) {
+    return await this.prisma.job_listing.create({
+      data: {
+        title: data.title,
+        description: data.description,
+        location: data.location,
+        created_by: {
+          connect: {
+            user_id: user_id,
+          },
+        },
+        date_posted: data.should_publish ? moment().toISOString() : undefined,
+      },
     });
   }
 }

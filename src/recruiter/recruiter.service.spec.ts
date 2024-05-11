@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { RecruiterService } from './recruiter.service';
 import { PrismaService } from 'src/prisma.service';
 import { JobListingStatus } from './recruiter.dto';
+import * as moment from 'moment-timezone';
 
 describe('RecruiterService', () => {
   let service: RecruiterService;
@@ -18,6 +19,7 @@ describe('RecruiterService', () => {
             job_listing: {
               findMany: jest.fn(),
               count: jest.fn(),
+              create: jest.fn(),
             },
           },
         },
@@ -37,7 +39,7 @@ describe('RecruiterService', () => {
     expect(service).toBeDefined();
   });
 
-  it('should handle default parameters when none are provided', async () => {
+  it('List job listings for recruiter - should handle default parameters when none are provided', async () => {
     prismaMock.$transaction.mockImplementation(async (callback) => {
       return callback(prismaMock);
     });
@@ -67,7 +69,7 @@ describe('RecruiterService', () => {
     });
   });
 
-  it('should correctly paginate the results', async () => {
+  it('List job listings for recruiter - should correctly paginate the results', async () => {
     prismaMock.$transaction.mockImplementation(async (callback) => {
       return callback(prismaMock);
     });
@@ -98,7 +100,7 @@ describe('RecruiterService', () => {
     });
   });
 
-  it('should handle no job listings available', async () => {
+  it('List job listings for recruiter - should handle no job listings available', async () => {
     prismaMock.$transaction.mockImplementation(async (callback) => {
       return callback(prismaMock);
     });
@@ -121,7 +123,7 @@ describe('RecruiterService', () => {
     });
   });
 
-  it('should handle errors gracefully', async () => {
+  it('List job listings for recruiter - should handle errors gracefully', async () => {
     prismaMock.$transaction.mockImplementation(() => {
       throw new Error('Database error');
     });
@@ -131,7 +133,7 @@ describe('RecruiterService', () => {
     ).rejects.toThrow('Database error');
   });
 
-  it('should correctly parse job listings', async () => {
+  it('List job listings for recruiter - should correctly parse job listings', async () => {
     const mockData = [
       {
         id: 1,
@@ -184,4 +186,84 @@ describe('RecruiterService', () => {
       },
     ]);
   });
+
+  it('should create a job listing with date posted', async () => {
+    const dto = {
+      title: 'Software Engineer',
+      description: 'Develop full-stack applications',
+      location: 'Remote',
+      should_publish: true,
+    };
+    const expectedDate = moment().toISOString();
+    //@ts-expect-error Jest mock
+    prismaMock.job_listing.create.mockResolvedValue({
+      ...dto,
+      created_by_id: 1,
+      date_posted: expectedDate,
+    });
+
+    const result = await service.createJobListing(1, dto);
+
+    expect(prismaMock.job_listing.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        title: dto.title,
+        description: dto.description,
+        location: dto.location,
+        created_by: {
+          connect: {
+            user_id: 1,
+          },
+        },
+        //TODO Fix this, moment mocking issue
+        date_posted: expect.any(String),
+      }),
+    });
+    expect(result).toEqual({
+      ...dto,
+      created_by_id: 1,
+      date_posted: expectedDate,
+    });
+  });
+
+  it('should create a job listing without date posted', async () => {
+    const dto = {
+      title: 'Software Engineer',
+      description: 'Develop full-stack applications',
+      location: 'Remote',
+      should_publish: false,
+    };
+
+    //@ts-expect-error Jest mock doesnt recoginize optional create fields
+    jest.spyOn(prismaMock.job_listing, 'create').mockResolvedValue({
+      ...dto,
+      created_by_id: 1,
+      date_posted: undefined,
+    });
+
+    const result = await service.createJobListing(1, dto);
+    expect(prismaMock.job_listing.create).toHaveBeenCalledWith({
+      data: {
+        title: dto.title,
+        description: dto.description,
+        location: dto.location,
+        created_by: {
+          connect: {
+            user_id: 1,
+          },
+        },
+        date_posted: undefined,
+      },
+    });
+    expect(result).toEqual({
+      ...dto,
+      created_by_id: 1,
+      date_posted: undefined,
+    });
+  });
+
+  // it('Create job listing - should create published job listing', async () => {
+  //   const prisma_spy = jest.spyOn(prisma.job_listing, 'create');
+  // });
+
+  // it('Create job listing - should create draft job listing', async () => {});
 });
