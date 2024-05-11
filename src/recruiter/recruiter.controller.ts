@@ -15,6 +15,7 @@ import { RecruiterAuthGuard } from 'src/auth/guards/recruiter.guard';
 import { RecruiterService } from './recruiter.service';
 import {
   CreateJobListingDTO,
+  EditJobListingDTO,
   JobListResponseDTO,
   SearchParamsDto,
 } from './recruiter.dto';
@@ -65,8 +66,14 @@ export class RecruiterController {
   async updateJobListing(
     @Param('job_listing_id') job_listing_id: number,
     @User() user: RequestUserEntity,
-    @Body() body: CreateJobListingDTO,
-  ) {}
+    @Body() body: EditJobListingDTO,
+  ) {
+    return await this.recruiterService.updateJobListing(
+      user.id,
+      job_listing_id,
+      body,
+    );
+  }
 
   @Delete('/jobs/:job_listing_id')
   @ApiBearerAuth()

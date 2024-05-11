@@ -23,7 +23,7 @@ describe('RecruiterController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should return job listings for the logged-in recruiter', async () => {
+  it('getJobListingsByRecruiter() - should return job listings for the logged-in recruiter', async () => {
     const user = {
       id: 123,
       username: '123',
@@ -52,7 +52,7 @@ describe('RecruiterController', () => {
     expect(receruiterServiceMock).toHaveBeenCalledWith(user.id, params);
   });
 
-  it('should call the service create function with the payload provided', async () => {
+  it('createJobListing() - should call the service create function with the payload provided', async () => {
     const user = {
       id: 123,
       username: '123',
@@ -88,7 +88,53 @@ describe('RecruiterController', () => {
     expect(receruiterServiceMock).toHaveBeenCalledWith(user.id, payload);
   });
 
-  it('should call the service create function with the payload provided', async () => {
+  it('updateJobListing() - should call the service update function with the payload provided', async () => {
+    const job_listing_id = 1;
+
+    const user = {
+      id: 123,
+      username: '123',
+    } as RequestUserEntity;
+
+    const payload = {
+      title: 'Sample Update Title',
+      description: 'Sample Update description',
+      location: 'Sample Update location',
+      should_publish: false,
+    };
+
+    const expectedResult = {
+      id: 2,
+      title: 'Test Job 2',
+      location: 'Worldwide',
+      description: ' Come get the best job',
+      date_posted: null,
+      created_at: new Date(),
+      updated_at: new Date(),
+      deleted_at: null,
+      created_by_id: 1,
+    };
+
+    const receruiterServiceMock = jest
+      .spyOn(recruiterService, 'updateJobListing')
+      .mockResolvedValue(expectedResult);
+
+    const result = await controller.updateJobListing(
+      job_listing_id,
+      user,
+      payload,
+    );
+
+    expect(result).toEqual(expectedResult);
+    //TODO Fix this
+    expect(receruiterServiceMock).toHaveBeenCalledWith(
+      user.id,
+      job_listing_id,
+      payload,
+    );
+  });
+
+  it('deleteJobListing() - should call the service create function with the payload provided', async () => {
     const job_listing_id = 1;
 
     const user = {

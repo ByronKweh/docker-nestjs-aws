@@ -1,7 +1,13 @@
-import { Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import {
   CreateJobListingDTO,
+  EditJobListingDTO,
   JobListResponseDTO,
   JobListingStatus,
   RecruiterJobListItemDTO,
@@ -94,11 +100,45 @@ export class RecruiterService {
       },
     });
 
-    if (listing.created_by.user_id !== user_id) {
+    if (!listing || listing.created_by.user_id !== user_id) {
       return false;
     }
 
     return true;
+  }
+
+  async updateJobListing(
+    user_id: number,
+    job_listing_id: number,
+    payload: EditJobListingDTO,
+  ) {
+    if (!(await this.isValidJobListingAndUserId(user_id, job_listing_id))) {
+      throw new BadRequestException();
+    }
+
+    const { should_publish, ...update_data } = payload;
+
+    if (!should_publish) {
+      return await this.prisma.job_listing.update({
+        where: {
+          id: job_listing_id,
+        },
+        data: {
+          ...update_data,
+          date_posted: null,
+        },
+      });
+    }
+
+    return await this.prisma.job_listing.update({
+      where: {
+        id: job_listing_id,
+      },
+      data: {
+        ...update_data,
+        date_posted: moment().toISOString(),
+      },
+    });
   }
 
   async deleteJobListing(user_id: number, job_listing_id: number) {

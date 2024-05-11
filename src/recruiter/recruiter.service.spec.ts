@@ -3,7 +3,7 @@ import { RecruiterService } from './recruiter.service';
 import { PrismaService } from 'src/prisma.service';
 import { JobListingStatus } from './recruiter.dto';
 import * as moment from 'moment-timezone';
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 describe('RecruiterService', () => {
   let service: RecruiterService;
@@ -24,6 +24,7 @@ describe('RecruiterService', () => {
               create: jest.fn(),
               findFirst: jest.fn(),
               delete: jest.fn(),
+              update: jest.fn(),
             },
           },
         },
@@ -290,6 +291,76 @@ describe('RecruiterService', () => {
 
     const result = await service.isValidJobListingAndUserId(1, 100);
     expect(result).toBe(false);
+  });
+
+  it('should throw BadRequestException if user is not authorized', async () => {
+    jest.spyOn(service, 'isValidJobListingAndUserId').mockResolvedValue(false);
+
+    const payload = {
+      title: 'Sample 2 Title',
+      description: 'Sample 2 description',
+      location: 'Sample 2 location',
+      should_publish: false,
+    };
+
+    await expect(service.updateJobListing(1, 100, payload)).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('should update job listing without date_posted if not publishing', async () => {
+    jest.spyOn(service, 'isValidJobListingAndUserId').mockResolvedValue(true);
+    const updateData = {
+      title: 'Sample 2 Title',
+      description: 'Sample 2 description',
+      location: 'Sample 2 location',
+      should_publish: false,
+    };
+    //@ts-expect-error Prisma jest error
+    prismaMock.job_listing.update.mockResolvedValue({
+      ...updateData,
+      date_posted: null,
+    });
+
+    const result = await service.updateJobListing(1, 100, updateData);
+    expect(prismaMock.job_listing.update).toHaveBeenCalledWith({
+      where: { id: 100 },
+      data: {
+        title: 'Sample 2 Title',
+        description: 'Sample 2 description',
+        location: 'Sample 2 location',
+        date_posted: null,
+      },
+    });
+    expect(result.date_posted).toBeNull();
+  });
+
+  it('should update job listing with current date if publishing', async () => {
+    jest.spyOn(service, 'isValidJobListingAndUserId').mockResolvedValue(true);
+    const updateData = {
+      title: 'Sample 2 Title',
+      description: 'Sample 2 description',
+      location: 'Sample 2 location',
+      should_publish: true,
+    };
+    const currentDate = moment().toISOString();
+    //@ts-expect-error Prisma jest error
+    prismaMock.job_listing.update.mockResolvedValue({
+      ...updateData,
+      date_posted: currentDate,
+    });
+
+    const result = await service.updateJobListing(1, 100, updateData);
+    expect(prismaMock.job_listing.update).toHaveBeenCalledWith({
+      where: { id: 100 },
+      data: {
+        title: 'Sample 2 Title',
+        description: 'Sample 2 description',
+        location: 'Sample 2 location',
+        date_posted: currentDate,
+      },
+    });
+    expect(result.date_posted).toEqual(currentDate);
   });
 
   it('deleteJobListing() - should delete the job listing if user is authorized', async () => {
