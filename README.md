@@ -18,6 +18,10 @@ yarn:docker
 yarn test
 ```
 
+## Playground 
+
+You can play with the APIs via our Swagger [here](http://ec2-3-0-29-165.ap-southeast-1.compute.amazonaws.com:3000/swagger#/) or just run it locally and it should be available on `localhost:3000/swagger`
+
 ## Technologies
 
 - 🐅[**NestJs**](https://docs.nestjs.com/) - a framework for building efficient, scalable Node.js server-side applications.
