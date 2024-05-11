@@ -17,6 +17,7 @@ export class AuthService {
     const user = await this.prisma.user.findFirst({
       where: {
         username: request.email,
+        deleted_at: null,
       },
     });
 

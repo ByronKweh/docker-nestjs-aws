@@ -8,6 +8,9 @@ async function main() {
     create: {
       username: 'recruiter@pulsifi.com',
       password: await bcrypt.hash('passsword', 10),
+      recruiter: {
+        create: {},
+      },
     },
   });
   const bob = await prisma.user.upsert({
