@@ -1,14 +1,14 @@
-# Use the official Node.js 18 image as base
+# Use the official Node.js 18 image as a base
 FROM node:18
 
 # Set the working directory in the container
-WORKDIR /app/backend
+WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json to the container
+# Copy package.json and package-lock.json (or yarn.lock if using Yarn)
 COPY package*.json ./
 
-# Install NestJS dependencies
-RUN yarn
+# Install dependencies
+RUN yarn install
 
 # Copy the rest of the application code
 COPY . .

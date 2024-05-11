@@ -9,8 +9,12 @@ services:
       - "3000:3000"
     depends_on:
       - db
+    volumes:
+      - .:/usr/src/app # Mount the project directory
+      - /usr/src/app/node_modules # Use node_modules from the container
     environment:
-      - DATABASE_URL=postgres://user:password@db:5432/dbname
+      - DATABASE_URL=postgres://user:password@db:5432/test_db
+    command: yarn start:dev # Start command with hot reload enabled
 
   db:
     container_name: postgres_db
@@ -20,22 +24,9 @@ services:
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=dbname
+      - POSTGRES_DB=test_db
     volumes:
       - pgdata:/var/lib/postgresql/data
-      
-  pgadmin:
-    image: dpage/pgadmin4
-    restart: always
-    container_name: nest-pgadmin4
-    environment:
-      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
-      - PGADMIN_DEFAULT_PASSWORD=pgadmin4
-    ports:
-      - '5050:80'
-    depends_on:
-      - db
 
 volumes:
   pgdata:
-
