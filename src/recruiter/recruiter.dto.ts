@@ -1,35 +1,6 @@
-import {
-  ApiProperty,
-  ApiPropertyOptional,
-} from '@nestjs/swagger/dist/decorators/api-property.decorator';
-import {
-  IsOptional,
-  IsInt,
-  Min,
-  IsString,
-  IsNotEmpty,
-  IsBoolean,
-} from 'class-validator';
-
-export class SearchParamsDto {
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @ApiPropertyOptional({
-    description: 'Page number for pagination',
-    example: 1,
-  })
-  page?: number;
-
-  @IsOptional()
-  @IsInt()
-  @Min(1)
-  @ApiPropertyOptional({
-    description: 'Number of results per page',
-    example: 10,
-  })
-  page_size?: number;
-}
+import { ApiProperty } from '@nestjs/swagger/dist/decorators/api-property.decorator';
+import { IsString, IsNotEmpty, IsBoolean } from 'class-validator';
+import { PaginatedResponseDTO } from 'src/shared/shared.dto';
 
 export interface RecruiterJobListItemDTO {
   id: number;
@@ -44,7 +15,7 @@ export enum JobListingStatus {
   DRAFT = 'DRAFT',
 }
 
-export class JobListResponseDTO {
+export class JobListResponseDTO extends PaginatedResponseDTO {
   @ApiProperty({
     example: [
       {
@@ -64,18 +35,6 @@ export class JobListResponseDTO {
     ],
   })
   listings: RecruiterJobListItemDTO[];
-  @ApiProperty({
-    example: 1,
-  })
-  page: number;
-  @ApiProperty({
-    example: 10,
-  })
-  page_size: number;
-  @ApiProperty({
-    example: 100,
-  })
-  page_count: number;
 }
 
 export class CreateJobListingDTO {

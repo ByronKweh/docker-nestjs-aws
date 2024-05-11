@@ -6,6 +6,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { RecruiterModule } from './recruiter/recruiter.module';
+import { CandidateModule } from './candidate/candidate.module';
 import configuration from './config/config';
 
 @Module({
@@ -20,6 +21,7 @@ import configuration from './config/config';
     }),
     AuthModule,
     RecruiterModule,
+    CandidateModule,
   ],
   controllers: [AppController],
   providers: [AppService, PrismaService],

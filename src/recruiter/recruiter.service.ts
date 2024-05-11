@@ -11,9 +11,9 @@ import {
   JobListResponseDTO,
   JobListingStatus,
   RecruiterJobListItemDTO,
-  SearchParamsDto,
 } from './recruiter.dto';
 import * as moment from 'moment-timezone';
+import { SearchParamsDto } from 'src/shared/shared.dto';
 
 @Injectable()
 export class RecruiterService {

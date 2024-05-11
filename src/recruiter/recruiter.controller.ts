@@ -17,10 +17,10 @@ import {
   CreateJobListingDTO,
   EditJobListingDTO,
   JobListResponseDTO,
-  SearchParamsDto,
 } from './recruiter.dto';
 import { User } from 'src/auth/decorators/user.decorator';
 import { RequestUserEntity } from 'src/auth/auth.dto';
+import { SearchParamsDto } from 'src/shared/shared.dto';
 
 @Controller('recruiter')
 @ApiTags('Recruiter | Recruiter related APIs')
@@ -37,7 +37,7 @@ export class RecruiterController {
   async getJobListingsByRecruiter(
     @User() user: RequestUserEntity,
     @Query(new ValidationPipe({ transform: true })) params: SearchParamsDto,
-  ) {
+  ): Promise<JobListResponseDTO> {
     return await this.recruiterService.getJobListingByRecruiter(
       user.id,
       params,
