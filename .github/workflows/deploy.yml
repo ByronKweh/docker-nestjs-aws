@@ -36,6 +36,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ec2-user/docker-nestjs-aws && sudo npx prisma migrate deploy && sudo yarn build && sudo npx pm2 kill'
 
-      - name: Run migrations, build, and stop pm2 instances
+      - name: Deploy dist folder using pm2
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} 'cd /home/ec2-user/docker-nestjs-aws && sudo yarn deploy'

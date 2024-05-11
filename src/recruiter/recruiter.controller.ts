@@ -10,7 +10,12 @@ import {
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { RecruiterAuthGuard } from 'src/auth/guards/recruiter.guard';
 import { RecruiterService } from './recruiter.service';
 import {
@@ -34,6 +39,7 @@ export class RecruiterController {
     status: 200,
     type: JobListResponseDTO,
   })
+  @ApiOperation({ summary: 'List all job listings created by recruiter' })
   async getJobListingsByRecruiter(
     @User() user: RequestUserEntity,
     @Query(new ValidationPipe({ transform: true })) params: SearchParamsDto,
