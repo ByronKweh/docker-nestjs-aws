@@ -1,17 +1,17 @@
 import { Controller, Get, Param, Query, ValidationPipe } from '@nestjs/common';
 import { ApiResponse, ApiTags } from '@nestjs/swagger';
-import { CandidateService } from './candidate.service';
+import { SearchParamsDto } from 'src/shared/shared.dto';
 import {
-  PublicJobListItemDTO,
+  JobDetailsResponseDTO,
   PublicJobListResponseDTO,
 } from './candidate.dto';
-import { SearchParamsDto } from 'src/shared/shared.dto';
+import { CandidateService } from './candidate.service';
 
 @Controller('candidate')
 @ApiTags('Candidate | APIs accessible to candidates (General users)')
 export class CandidateController {
   constructor(private readonly candidateService: CandidateService) {}
-  @Get('/jobs')
+  @Get('/job-listings')
   @ApiResponse({
     status: 200,
     type: PublicJobListResponseDTO,
@@ -22,15 +22,14 @@ export class CandidateController {
     return await this.candidateService.getJobListings(params);
   }
 
-  //   @Get('/jobs/job_listing_id')
-  //   @ApiResponse({
-  //     status: 200,
-  //     type: PublicJobListItemDTO,
-  //   })
-  //   async getJobListing(
-  //     @Param('job_listing_id') job_listing_id: number,
-  //   ): Promise<PublicJobListItemDTO> {
-  //     // return await this.candidateService.getJobs(params);
-  //     return {};
-  //   }
+  @Get('/job-listings/:job_listing_id')
+  @ApiResponse({
+    status: 200,
+    type: JobDetailsResponseDTO,
+  })
+  async getJobListingDetails(
+    @Param('job_listing_id') job_listing_id: number,
+  ): Promise<JobDetailsResponseDTO> {
+    return await this.candidateService.getJobListingDetails(job_listing_id);
+  }
 }

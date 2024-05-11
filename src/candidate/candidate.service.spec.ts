@@ -1,6 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CandidateService } from './candidate.service';
 import { PrismaService } from 'src/prisma.service';
+import { NotFoundException } from '@nestjs/common';
 
 describe('CandidateService', () => {
   let service: CandidateService;
@@ -32,7 +33,7 @@ describe('CandidateService', () => {
     prismaMock = module.get<PrismaService>(PrismaService);
   });
 
-  it('should return job listings with pagination and formatted dates', async () => {
+  it('getJobListings() - should return job listings with pagination and formatted dates', async () => {
     const mockListings = [
       {
         id: 1,
@@ -89,6 +90,57 @@ describe('CandidateService', () => {
 
     expect(prismaMock.job_listing.count).toHaveBeenCalledWith({
       where: { date_posted: { not: null } },
+    });
+  });
+
+  it('getJobListingDetails() - should return job listing details when found', async () => {
+    const date = new Date();
+    const mockJobDetails = {
+      id: 1,
+      title: 'Software Developer',
+      description: 'Develop high-quality software.',
+      date_posted: date,
+      location: 'Remote',
+    };
+    //@ts-expect-error prisma mock resolve
+    prismaMock.job_listing.findFirst.mockResolvedValue(mockJobDetails);
+
+    const result = await service.getJobListingDetails(1);
+    expect(result).toEqual(mockJobDetails);
+    expect(prismaMock.job_listing.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 1,
+        date_posted: { not: null },
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        date_posted: true,
+        location: true,
+      },
+    });
+  });
+
+  it('getJobListingDetails()  - should throw NotFoundException when job listing is not found', async () => {
+    //@ts-expect-error prisma mock resolve
+    prismaMock.job_listing.findFirst.mockResolvedValue(null);
+
+    await expect(service.getJobListingDetails(1)).rejects.toThrow(
+      NotFoundException,
+    );
+    expect(prismaMock.job_listing.findFirst).toHaveBeenCalledWith({
+      where: {
+        id: 1,
+        date_posted: { not: null },
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        date_posted: true,
+        location: true,
+      },
     });
   });
 });

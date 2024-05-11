@@ -27,7 +27,7 @@ import { SearchParamsDto } from 'src/shared/shared.dto';
 export class RecruiterController {
   constructor(private readonly recruiterService: RecruiterService) {}
 
-  @Get('/jobs')
+  @Get('/job-listings')
   @ApiBearerAuth()
   @UseGuards(RecruiterAuthGuard)
   @ApiResponse({
@@ -44,7 +44,7 @@ export class RecruiterController {
     );
   }
 
-  @Post('/jobs')
+  @Post('/job-listings')
   @ApiBearerAuth()
   @UseGuards(RecruiterAuthGuard)
   @ApiResponse({
@@ -57,7 +57,7 @@ export class RecruiterController {
     return await this.recruiterService.createJobListing(user.id, body);
   }
 
-  @Put('/jobs/:job_listing_id')
+  @Put('/job-listings/:job_listing_id')
   @ApiBearerAuth()
   @UseGuards(RecruiterAuthGuard)
   @ApiResponse({
@@ -75,7 +75,7 @@ export class RecruiterController {
     );
   }
 
-  @Delete('/jobs/:job_listing_id')
+  @Delete('/job-listings/:job_listing_id')
   @ApiBearerAuth()
   @UseGuards(RecruiterAuthGuard)
   @ApiResponse({

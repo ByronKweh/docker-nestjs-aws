@@ -27,3 +27,11 @@ export class PublicJobListItemDTO {
   description: string;
   date_posted: string;
 }
+
+export class JobDetailsResponseDTO {
+  id: number;
+  title: string;
+  description: string;
+  location: string;
+  date_posted: Date;
+}

@@ -21,7 +21,7 @@ describe('CandidateController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('getJobListings() - should return job listings for the logged-in recruiter', async () => {
+  it('getJobListings() - should return job listings ', async () => {
     const params = {
       page: 1,
       page_size: 10,
@@ -40,7 +40,25 @@ describe('CandidateController', () => {
     const result = await controller.getJobListings(params);
 
     expect(result).toEqual(expectedResult);
-    //TODO Fix this
     expect(receruiterServiceMock).toHaveBeenCalledWith(params);
+  });
+
+  it('getJobListingDetails() - should return job listing details', async () => {
+    const job_listing_id = 123;
+    const expectedResult = {
+      id: 5,
+      title: 'Sample Title',
+      description: 'Sample description',
+      date_posted: new Date(),
+      location: 'Sample location',
+    };
+    const receruiterServiceMock = jest
+      .spyOn(service, 'getJobListingDetails')
+      .mockResolvedValue(expectedResult);
+
+    const result = await controller.getJobListingDetails(job_listing_id);
+
+    expect(result).toEqual(expectedResult);
+    expect(receruiterServiceMock).toHaveBeenCalledWith(job_listing_id);
   });
 });

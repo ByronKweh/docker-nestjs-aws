@@ -1,8 +1,11 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import * as moment from 'moment-timezone';
+import { PrismaService } from 'src/prisma.service';
 import { SearchParamsDto } from 'src/shared/shared.dto';
-import { PublicJobListResponseDTO } from './candidate.dto';
+import {
+  JobDetailsResponseDTO,
+  PublicJobListResponseDTO,
+} from './candidate.dto';
 
 @Injectable()
 export class CandidateService {
@@ -53,5 +56,29 @@ export class CandidateService {
         page_count: Math.ceil(count / page_size),
       };
     });
+  }
+
+  async getJobListingDetails(
+    job_listing_id: number,
+  ): Promise<JobDetailsResponseDTO> {
+    const result = await this.prisma.job_listing.findFirst({
+      where: {
+        id: job_listing_id,
+        date_posted: {
+          not: null,
+        },
+      },
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        date_posted: true,
+        location: true,
+      },
+    });
+
+    if (!result) throw new NotFoundException();
+
+    return result;
   }
 }
